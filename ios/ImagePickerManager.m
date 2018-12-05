@@ -288,6 +288,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
 
         if ([mediaType isEqualToString:(NSString *)kUTTypeImage]) { // PHOTOS
             UIImage *originalImage;
+            self.response[@"assetType"] = @"Images";
             if ([[self.options objectForKey:@"allowsEditing"] boolValue]) {
                 originalImage = [info objectForKey:UIImagePickerControllerEditedImage];
             }
@@ -427,6 +428,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
             NSURL *videoRefURL = info[UIImagePickerControllerReferenceURL];
             NSURL *videoURL = info[UIImagePickerControllerMediaURL];
             NSURL *videoDestinationURL = [NSURL fileURLWithPath:path];
+            self.response[@"assetType"] = @"Videos";
 
             if (videoRefURL) {
                 PHAsset *pickedAsset = [PHAsset fetchAssetsWithALAssetURLs:@[videoRefURL] options:nil].lastObject;
