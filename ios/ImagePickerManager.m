@@ -435,9 +435,9 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
             NSURL *thumbDestinationURL = [NSURL fileURLWithPath:thumbPath];
             
             self.response[@"assetType"] = @"Videos";
-            PHAsset *pickedAsset = [PHAsset fetchAssetsWithALAssetURLs:@[videoRefURL] options:nil].lastObject;
 
             if (videoRefURL) {
+                PHAsset *pickedAsset = [PHAsset fetchAssetsWithALAssetURLs:@[videoRefURL] options:nil].lastObject;
                 NSString *originalFilename = [self originalFilenameForAsset:pickedAsset assetType:PHAssetResourceTypeVideo];
                 self.response[@"fileName"] = originalFilename ?: [NSNull null];
                 if (pickedAsset.location) {
@@ -492,23 +492,8 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                                 if (capturedAsset.creationDate) {
                                     self.response[@"timestamp"] = [[ImagePickerManager ISO8601DateFormatter] stringFromDate:capturedAsset.creationDate];
                                 }
-                                
-                                
-                                
-//                                [[PHImageManager defaultManager]
-//                                 requestImageForAsset:capturedAsset
-//                                 targetSize:retinaSquare
-//                                 contentMode:PHImageContentModeAspectFill
-//                                 options:opts
-//                                 resultHandler:^(UIImage *result, NSDictionary *info) {
-//
-//                                     NSData *data = UIImagePNGRepresentation(result);
-//                                     [data writeToFile:thumbPath atomically:YES];
-//
-//                                 }];
-//                                [self saveFirstFrame:assetURL thumbnailPath:thumbPath];
                             }
-                            
+                            PHAsset *pickedAsset = [PHAsset fetchAssetsWithALAssetURLs:@[videoRefURL] options:nil].lastObject;
                             PHImageRequestOptions *opts = [[PHImageRequestOptions alloc] init];
                             opts.resizeMode = PHImageRequestOptionsResizeModeExact;
                             
@@ -519,14 +504,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                                              UIImageOrientation orientation,
                                              NSDictionary *info)
                              {
-                                 NSLog(@"info = %@", info);
-                                 if ([info objectForKey:@"PHImageFileURLKey"]) {
-                                     
-                                     NSURL *path = [info objectForKey:@"PHImageFileURLKey"];
-                                     // if you want to save image in document see this.
-                                     [self saveimageindocument:imageData withimagename:[NSString stringWithFormat:@"DEMO"]];
-                                 }
-                                 //                                     [imageData writeToFile:thumbPath atomically:YES];
+                                 [imageData writeToFile:thumbPath atomically:YES];
                              }];
                             
                             self.callback(@[self.response]);
@@ -559,25 +537,6 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
     dispatch_async(dispatch_get_main_queue(), ^{
         [picker dismissViewControllerAnimated:YES completion:dismissCompletionBlock];
     });
-}
-
--(void) saveimageindocument:(NSData*) imageData withimagename:(NSString*)imagename{
-    
-    NSString *writePath = [NSString stringWithFormat:@"%@/%@.png",[self getDocumentDirectory],imagename];
-    
-    if (![imageData writeToFile:writePath atomically:YES]) {
-        // failure
-        NSLog(@"image save failed to path %@", writePath);
-        
-    } else {
-        // success.
-        NSLog(@"image save Successfully to path %@", writePath);
-    }
-    
-}
-- (NSString*)getDocumentDirectory {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    return [paths objectAtIndex:0];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
