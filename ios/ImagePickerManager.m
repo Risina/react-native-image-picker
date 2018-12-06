@@ -430,7 +430,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
             NSURL *videoURL = info[UIImagePickerControllerMediaURL];
             NSURL *videoDestinationURL = [NSURL fileURLWithPath:path];
             
-            NSString *thumbName = [path stringByAppendingString:@"-thumb.png"];
+            NSString *thumbName = [tempFileName stringByAppendingString:@"-thumb.png"];
             NSString *thumbPath = [[NSTemporaryDirectory()stringByStandardizingPath] stringByAppendingPathComponent:thumbName];
             NSURL *thumbDestinationURL = [NSURL fileURLWithPath:thumbPath];
             
