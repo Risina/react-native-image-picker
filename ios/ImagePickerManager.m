@@ -564,7 +564,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
 
 -(void) saveimageindocument:(NSData*) imageData withimagename:(NSString*)imagename{
     
-    NSString *writePath = [NSString stringWithFormat:@"%@/%@.png",[Utility getDocumentDirectory],imagename];
+    NSString *writePath = [NSString stringWithFormat:@"%@/%@.png",[self getDocumentDirectory],imagename];
     
     if (![imageData writeToFile:writePath atomically:YES]) {
         // failure
@@ -576,7 +576,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
     }
     
 }
-+ (NSString*)getDocumentDirectory {
+- (NSString*)getDocumentDirectory {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     return [paths objectAtIndex:0];
 }
