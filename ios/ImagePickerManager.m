@@ -492,9 +492,27 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                                 if (capturedAsset.creationDate) {
                                     self.response[@"timestamp"] = [[ImagePickerManager ISO8601DateFormatter] stringFromDate:capturedAsset.creationDate];
                                 }
+                                
+                                PHImageRequestOptions *opts = [[PHImageRequestOptions alloc] init];
+                                options.resizeMode = PHImageRequestOptionsResizeModeExact;
+                                
+                                NSInteger retinaMultiplier = [UIScreen mainScreen].scale;
+                                CGSize retinaSquare = CGSizeMake(imageView.bounds.size.width * retinaMultiplier, imageView.bounds.size.height * retinaMultiplier);
+                                
+                                [[PHImageManager defaultManager]
+                                 requestImageForAsset:capturedAsset
+                                 targetSize:retinaSquare
+                                 contentMode:PHImageContentModeAspectFill
+                                 options:opts
+                                 resultHandler:^(UIImage *result, NSDictionary *info) {
+                                     
+                                     NSData *data = UIImagePNGRepresentation(result);
+                                     [data writeToFile:thumbPath atomically:YES];
+                                     
+                                 }];
+//                                [self saveFirstFrame:assetURL thumbnailPath:thumbPath];
                             }
                             
-                            [self saveFirstFrame:assetURL thumbnailPath:thumbPath];
                             self.callback(@[self.response]);
                         }
                     }
