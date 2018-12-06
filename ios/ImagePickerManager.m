@@ -699,13 +699,16 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
 }
 
 - (BOOL)saveFirstFrame:(NSURL *)videoURL thumbnailPath:(NSString *)thumbPath {
+    AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
+    AVAssetImageGenerator *gen = [[AVAssetImageGenerator alloc] initWithAsset:asset];
+    gen.appliesPreferredTrackTransform = YES;
+    CMTime time = CMTimeMakeWithSeconds(0.0, 600);
+    NSError *error = nil;
+    CMTime actualTime;
     
-    AVURLAsset* asset = [AVURLAsset URLAssetWithURL:videoURL options:nil];
-    AVAssetImageGenerator* generator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
-    generator.appliesPreferredTrackTransform = YES;
-    CGImageRef refImage = [generator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil];
-    UIImage *image= [[UIImage alloc] initWithCGImage:refImage];
-    NSData *data = UIImagePNGRepresentation(image);
+    CGImageRef image = [gen copyCGImageAtTime:time actualTime:&actualTime error:&error];
+    UIImage *thumb = [[UIImage alloc] initWithCGImage:image];
+    NSData *data = UIImagePNGRepresentation(thumb);
     [data writeToFile:thumbPath atomically:YES];
     return YES;
 }
