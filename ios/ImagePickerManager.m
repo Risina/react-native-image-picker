@@ -494,10 +494,10 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                                 }
                                 
                                 PHImageRequestOptions *opts = [[PHImageRequestOptions alloc] init];
-                                options.resizeMode = PHImageRequestOptionsResizeModeExact;
+                                opts.resizeMode = PHImageRequestOptionsResizeModeExact;
                                 
                                 NSInteger retinaMultiplier = [UIScreen mainScreen].scale;
-                                CGSize retinaSquare = CGSizeMake(imageView.bounds.size.width * retinaMultiplier, imageView.bounds.size.height * retinaMultiplier);
+                                CGSize retinaSquare = CGSizeMake(300, 300);
                                 
                                 [[PHImageManager defaultManager]
                                  requestImageForAsset:capturedAsset
