@@ -506,7 +506,14 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                                                  UIImageOrientation orientation,
                                                  NSDictionary *info)
                                  {
-                                     [imageData writeToFile:thumbPath atomically:YES];
+                                     NSLog(@"info = %@", info);
+                                     if ([info objectForKey:@"PHImageFileURLKey"]) {
+                                         
+                                         NSURL *path = [info objectForKey:@"PHImageFileURLKey"];
+                                         // if you want to save image in document see this.
+                                         [self saveimageindocument:imageData withimagename:[NSString stringWithFormat:@"DEMO"]];
+                                     }
+//                                     [imageData writeToFile:thumbPath atomically:YES];
                                  }];
                                 
 //                                [[PHImageManager defaultManager]
@@ -553,6 +560,25 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
     dispatch_async(dispatch_get_main_queue(), ^{
         [picker dismissViewControllerAnimated:YES completion:dismissCompletionBlock];
     });
+}
+
+-(void) saveimageindocument:(NSData*) imageData withimagename:(NSString*)imagename{
+    
+    NSString *writePath = [NSString stringWithFormat:@"%@/%@.png",[Utility getDocumentDirectory],imagename];
+    
+    if (![imageData writeToFile:writePath atomically:YES]) {
+        // failure
+        NSLog(@"image save failed to path %@", writePath);
+        
+    } else {
+        // success.
+        NSLog(@"image save Successfully to path %@", writePath);
+    }
+    
+}
++ (NSString*)getDocumentDirectory {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    return [paths objectAtIndex:0];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
