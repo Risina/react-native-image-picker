@@ -494,7 +494,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                                 }
                             }
                             
-                            [self saveFirstFrame:videoDestinationURL thumbnailPath:thumbPath];
+                            [self saveFirstFrame:assetURL thumbnailPath:thumbPath];
                             self.callback(@[self.response]);
                         }
                     }
