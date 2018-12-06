@@ -239,8 +239,9 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
         NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
 
         NSString *fileName;
+        NSString *tempFileName = [[NSUUID UUID] UUIDString];
+
         if ([mediaType isEqualToString:(NSString *)kUTTypeImage]) {
-            NSString *tempFileName = [[NSUUID UUID] UUIDString];
             if (imageURL && [[imageURL absoluteString] rangeOfString:@"ext=GIF"].location != NSNotFound) {
                 fileName = [tempFileName stringByAppendingString:@".gif"];
             }
@@ -428,6 +429,11 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
             NSURL *videoRefURL = info[UIImagePickerControllerReferenceURL];
             NSURL *videoURL = info[UIImagePickerControllerMediaURL];
             NSURL *videoDestinationURL = [NSURL fileURLWithPath:path];
+            
+            NSString *thumbName = [path stringByAppendingString:@"-thumb.png"];
+            NSString *thumbPath = [[NSTemporaryDirectory()stringByStandardizingPath] stringByAppendingPathComponent:thumbName];
+            NSURL *thumbDestinationURL = NSURL *videoDestinationURL = [NSURL fileURLWithPath:thumbPath];
+            
             self.response[@"assetType"] = @"Videos";
 
             if (videoRefURL) {
@@ -462,6 +468,8 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
             }
 
             [self.response setObject:videoDestinationURL.absoluteString forKey:@"uri"];
+            [self.response setObject:thumbDestinationURL.absoluteString forKey:@"videoThumbnail"];
+
             if (videoRefURL.absoluteString) {
                 [self.response setObject:videoRefURL.absoluteString forKey:@"origURL"];
             }
@@ -485,7 +493,8 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                                     self.response[@"timestamp"] = [[ImagePickerManager ISO8601DateFormatter] stringFromDate:capturedAsset.creationDate];
                                 }
                             }
-
+                            
+                            [self saveFirstFrame:videoRefURL thumbnailPath:thumbPath];
                             self.callback(@[self.response]);
                         }
                     }
@@ -687,6 +696,31 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
         NSLog(@"Error setting skip backup attribute: file not found");
         return NO;
     }
+}
+
+- (BOOL)saveFirstFrame:(NSURL *)videoURL thumbnailPath:(NSString *)thumbPath {
+    
+    AVURLAsset* asset = [AVURLAsset URLAssetWithURL:videoURL options:nil];
+    AVAssetImageGenerator* generator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
+    generator.appliesPreferredTrackTransform = YES;
+    CGImageRef image = [generator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil];
+    
+    CFURLRef url = (__bridge CFURLRef)[NSURL fileURLWithPath:thumbPath];
+    CGImageDestinationRef destination = CGImageDestinationCreateWithURL(url, kUTTypePNG, 1, NULL);
+    if (!destination) {
+        return NO;
+    }
+    
+    CGImageDestinationAddImage(destination, image, nil);
+    
+    if (!CGImageDestinationFinalize(destination)) {
+        NSLog(@"Failed to write image to %@", path);
+        CFRelease(destination);
+        return NO;
+    }
+    
+    CFRelease(destination);
+    return YES;
 }
 
 #pragma mark - Class Methods
