@@ -493,6 +493,12 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                                     self.response[@"timestamp"] = [[ImagePickerManager ISO8601DateFormatter] stringFromDate:capturedAsset.creationDate];
                                 }
                             }
+                            
+                            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                            NSString *documentsDirectory = [paths objectAtIndex:0];
+                            NSString *thumbName = [tempFileName stringByAppendingString:@"-thumb.png"];
+                            NSString *thumbPath = [documentsDirectory stringByAppendingPathComponent:thumbName];
+                            
                             PHAsset *pickedAsset = [PHAsset fetchAssetsWithALAssetURLs:@[videoRefURL] options:nil].lastObject;
                             PHImageRequestOptions *opts = [[PHImageRequestOptions alloc] init];
                             opts.resizeMode = PHImageRequestOptionsResizeModeExact;
