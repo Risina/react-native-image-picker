@@ -435,9 +435,9 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
             NSURL *thumbDestinationURL = [NSURL fileURLWithPath:thumbPath];
             
             self.response[@"assetType"] = @"Videos";
+            PHAsset *pickedAsset = [PHAsset fetchAssetsWithALAssetURLs:@[videoRefURL] options:nil].lastObject;
 
             if (videoRefURL) {
-                PHAsset *pickedAsset = [PHAsset fetchAssetsWithALAssetURLs:@[videoRefURL] options:nil].lastObject;
                 NSString *originalFilename = [self originalFilenameForAsset:pickedAsset assetType:PHAssetResourceTypeVideo];
                 self.response[@"fileName"] = originalFilename ?: [NSNull null];
                 if (pickedAsset.location) {
@@ -467,7 +467,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                 }
             }
 
-            [self.response setObject:videoDestinationURL.absoluteString forKey:@"thumbDestinationURL"];
+            [self.response setObject:videoDestinationURL.absoluteString forKey:@"uri"];
             [self.response setObject:thumbDestinationURL.absoluteString forKey:@"videoThumbnail"];
 
             if (videoRefURL.absoluteString) {
@@ -493,28 +493,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                                     self.response[@"timestamp"] = [[ImagePickerManager ISO8601DateFormatter] stringFromDate:capturedAsset.creationDate];
                                 }
                                 
-                                PHImageRequestOptions *opts = [[PHImageRequestOptions alloc] init];
-                                opts.resizeMode = PHImageRequestOptionsResizeModeExact;
                                 
-                                NSInteger retinaMultiplier = [UIScreen mainScreen].scale;
-                                CGSize retinaSquare = CGSizeMake(300, 300);
-                                
-                                [[PHImageManager defaultManager]
-                                 requestImageDataForAsset:capturedAsset
-                                 options:opts
-                                 resultHandler:^(NSData *imageData, NSString *dataUTI,
-                                                 UIImageOrientation orientation,
-                                                 NSDictionary *info)
-                                 {
-                                     NSLog(@"info = %@", info);
-                                     if ([info objectForKey:@"PHImageFileURLKey"]) {
-                                         
-                                         NSURL *path = [info objectForKey:@"PHImageFileURLKey"];
-                                         // if you want to save image in document see this.
-                                         [self saveimageindocument:imageData withimagename:[NSString stringWithFormat:@"DEMO"]];
-                                     }
-//                                     [imageData writeToFile:thumbPath atomically:YES];
-                                 }];
                                 
 //                                [[PHImageManager defaultManager]
 //                                 requestImageForAsset:capturedAsset
@@ -529,6 +508,26 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
 //                                 }];
 //                                [self saveFirstFrame:assetURL thumbnailPath:thumbPath];
                             }
+                            
+                            PHImageRequestOptions *opts = [[PHImageRequestOptions alloc] init];
+                            opts.resizeMode = PHImageRequestOptionsResizeModeExact;
+                            
+                            [[PHImageManager defaultManager]
+                             requestImageDataForAsset:pickedAsset
+                             options:opts
+                             resultHandler:^(NSData *imageData, NSString *dataUTI,
+                                             UIImageOrientation orientation,
+                                             NSDictionary *info)
+                             {
+                                 NSLog(@"info = %@", info);
+                                 if ([info objectForKey:@"PHImageFileURLKey"]) {
+                                     
+                                     NSURL *path = [info objectForKey:@"PHImageFileURLKey"];
+                                     // if you want to save image in document see this.
+                                     [self saveimageindocument:imageData withimagename:[NSString stringWithFormat:@"DEMO"]];
+                                 }
+                                 //                                     [imageData writeToFile:thumbPath atomically:YES];
+                             }];
                             
                             self.callback(@[self.response]);
                         }
