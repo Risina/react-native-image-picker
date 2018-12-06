@@ -467,7 +467,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                 }
             }
 
-            [self.response setObject:videoDestinationURL.absoluteString forKey:@"uri"];
+            [self.response setObject:videoDestinationURL.absoluteString forKey:@"thumbDestinationURL"];
             [self.response setObject:thumbDestinationURL.absoluteString forKey:@"videoThumbnail"];
 
             if (videoRefURL.absoluteString) {
@@ -714,7 +714,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
     CGImageDestinationAddImage(destination, image, nil);
     
     if (!CGImageDestinationFinalize(destination)) {
-        NSLog(@"Failed to write image to %@", path);
+        NSLog(@"Failed to write image to %@", thumbPath);
         CFRelease(destination);
         return NO;
     }
