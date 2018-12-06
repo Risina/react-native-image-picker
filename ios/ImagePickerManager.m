@@ -703,23 +703,10 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
     AVURLAsset* asset = [AVURLAsset URLAssetWithURL:videoURL options:nil];
     AVAssetImageGenerator* generator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
     generator.appliesPreferredTrackTransform = YES;
-    CGImageRef image = [generator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil];
-    
-    CFURLRef url = (__bridge CFURLRef)[NSURL fileURLWithPath:thumbPath];
-    CGImageDestinationRef destination = CGImageDestinationCreateWithURL(url, kUTTypePNG, 1, NULL);
-    if (!destination) {
-        return NO;
-    }
-    
-    CGImageDestinationAddImage(destination, image, nil);
-    
-    if (!CGImageDestinationFinalize(destination)) {
-        NSLog(@"Failed to write image to %@", thumbPath);
-        CFRelease(destination);
-        return NO;
-    }
-    
-    CFRelease(destination);
+    CGImageRef refImage = [generator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil];
+    UIImage *image= [[UIImage alloc] initWithCGImage:refImage];
+    NSData *data = UIImagePNGRepresentation(image);
+    [data writeToFile:thumbPath atomically:YES];
     return YES;
 }
 
