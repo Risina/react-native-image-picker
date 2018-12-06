@@ -500,16 +500,26 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                                 CGSize retinaSquare = CGSizeMake(300, 300);
                                 
                                 [[PHImageManager defaultManager]
-                                 requestImageForAsset:capturedAsset
-                                 targetSize:retinaSquare
-                                 contentMode:PHImageContentModeAspectFill
+                                 requestImageDataForAsset:capturedAsset
                                  options:opts
-                                 resultHandler:^(UIImage *result, NSDictionary *info) {
-                                     
-                                     NSData *data = UIImagePNGRepresentation(result);
-                                     [data writeToFile:thumbPath atomically:YES];
-                                     
+                                 resultHandler:^(NSData *imageData, NSString *dataUTI,
+                                                 UIImageOrientation orientation,
+                                                 NSDictionary *info)
+                                 {
+                                     [imageData writeToFile:thumbPath atomically:YES];
                                  }];
+                                
+//                                [[PHImageManager defaultManager]
+//                                 requestImageForAsset:capturedAsset
+//                                 targetSize:retinaSquare
+//                                 contentMode:PHImageContentModeAspectFill
+//                                 options:opts
+//                                 resultHandler:^(UIImage *result, NSDictionary *info) {
+//
+//                                     NSData *data = UIImagePNGRepresentation(result);
+//                                     [data writeToFile:thumbPath atomically:YES];
+//
+//                                 }];
 //                                [self saveFirstFrame:assetURL thumbnailPath:thumbPath];
                             }
                             
