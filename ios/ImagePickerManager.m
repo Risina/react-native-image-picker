@@ -432,7 +432,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
             
             NSString *thumbName = [path stringByAppendingString:@"-thumb.png"];
             NSString *thumbPath = [[NSTemporaryDirectory()stringByStandardizingPath] stringByAppendingPathComponent:thumbName];
-            NSURL *thumbDestinationURL = NSURL *videoDestinationURL = [NSURL fileURLWithPath:thumbPath];
+            NSURL *thumbDestinationURL = [NSURL fileURLWithPath:thumbPath];
             
             self.response[@"assetType"] = @"Videos";
 
