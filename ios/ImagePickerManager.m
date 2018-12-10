@@ -272,6 +272,11 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
       if ([storageOptions objectForKey:@"path"]) {
         NSString *newPath = [documentsDirectory stringByAppendingPathComponent:[storageOptions objectForKey:@"path"]];
         NSError *error;
+        
+        if ([[NSFileManager defaultManager] fileExistsAtPath:newPath]) {
+          [[NSFileManager defaultManager] removeItemAtPath:newPath error:nil];
+        }
+        
         [[NSFileManager defaultManager] createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&error];
         if (error) {
           NSLog(@"Error creating documents subdirectory: %@", error);
