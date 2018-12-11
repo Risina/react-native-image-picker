@@ -37,7 +37,7 @@ RCT_EXPORT_METHOD(launchImageLibrary:(NSDictionary *)options callback:(RCTRespon
 RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback)
 {
   self.callback = callback; // Save the callback so we can use it from the delegate methods
-  self.options = options;
+  self.options = [options mutableCopy];
   
   NSString *title = [self.options valueForKey:@"title"];
   if ([title isEqual:[NSNull null]] || title.length == 0) {
@@ -125,13 +125,14 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
 
 - (void)launchImagePicker:(RNImagePickerTarget)target options:(NSDictionary *)options
 {
-  self.options = options;
+  self.options = [options mutableCopy];
   [self launchImagePicker:target];
 }
 
 - (void)launchImagePicker:(RNImagePickerTarget)target
 {
   self.picker = [[UIImagePickerController alloc] init];
+  self.picker.delegate = self;
   
   if (target == RNImagePickerTargetCamera) {
 #if TARGET_IPHONE_SIMULATOR
@@ -718,6 +719,15 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
   NSData *data = UIImageJPEGRepresentation(thumb, 0.5);
   [data writeToFile:thumbPath atomically:YES];
   return YES;
+}
+
+#pragma mark - UINavigationController delegates
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+  NSString *title = [self.options valueForKey:@"navBarTitle"];
+  if (title && navigationController.viewControllers.count == 1) {
+    [viewController.navigationItem setTitle:title];
+  }
 }
 
 #pragma mark - Class Methods
